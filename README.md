@@ -45,11 +45,13 @@ The idea is simple:
 - A **connection** links an output of one entity to an input of another, with an optional parameter, a delay, and a limit on how many times it can fire.
 
 Level designers set all of this up in Hammer's **Object Properties** dialog, as a simple list:
+
 ![Hammer's Outputs tab](Docs/Images/hammer-output-tab.png)
 
 *The Outputs tab in Hammer. Each line connects an event of this entity to an action on another one.*
 
 Hammer also shows the reverse view, listing every entity that targets the selected one, which makes debugging a map much easier:
+
 ![Hammer's Inputs tab](Docs/Images/hammer-inputs-tab..png)
 
 *The Inputs tab. Who is talking to this entity?*
