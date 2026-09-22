@@ -29,6 +29,11 @@ void UWireWorldSubsystem::UnregisterObject(UWireComponent* WireComponent)
     }
 }
 
+void UWireWorldSubsystem::QueueEvent(const FWireConnection& Connection, AActor* Caller, AActor* Activator)
+{
+    // TODO : Find UFunction from Connection
+}
+
 //---------------------------------------
 // Debug
 //---------------------------------------

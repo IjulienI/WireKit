@@ -6,6 +6,7 @@
 #include "Subsystems/WorldSubsystem.h"
 #include "WireWorldSubsystem.generated.h"
 
+struct FWireConnection;
 class UWireComponent;
 
 UCLASS()
@@ -22,6 +23,11 @@ public:
     
     UFUNCTION(BlueprintCallable, Category = "WireKit")
     void UnregisterObject(UWireComponent* WireComponent);
+
+    //---------------------------------------
+    // Public API
+    //---------------------------------------
+    void QueueEvent(const FWireConnection& Connection, AActor* Caller, AActor* Activator);
 
     //---------------------------------------
     // Debug
