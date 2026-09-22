@@ -4,6 +4,7 @@
 #include "WireWorldSubsystem.h"
 
 #include "WireComponent.h"
+#include "WireLog.h"
 
 void UWireWorldSubsystem::RegisterObject(UWireComponent* WireComponent)
 {
@@ -29,9 +30,49 @@ void UWireWorldSubsystem::UnregisterObject(UWireComponent* WireComponent)
     }
 }
 
+void UWireWorldSubsystem::Tick(float DeltaTime)
+{
+    const double Now = GetWorld()->GetTimeSeconds();
+
+    for (int32 i = PendingEvents.Num() - 1; i >= 0; --i)
+    {
+        if (PendingEvents[i].FireTime <= Now)
+        {
+            const FWirePendingEvent Event = PendingEvents[i];
+            PendingEvents.RemoveAtSwap(i, 1, EAllowShrinking::No);
+        }
+    }
+}
+
 void UWireWorldSubsystem::QueueEvent(const FWireConnection& Connection, AActor* Caller, AActor* Activator)
 {
-    // TODO : Find UFunction from Connection
+    FWirePendingEvent Event;
+    Event.FireTime = GetWorld()->GetTimeSeconds() + FMath::Max(0.f, Connection.Delay);
+    Event.TargetEntity = Connection.TargetEntity;
+    Event.TargetInput = Connection.TargetInput;
+    Event.Parameter = Connection.Parameter;
+    Event.Context.Caller = Caller;
+    Event.Context.Activator = Activator;
+    
+    if (Connection.Delay <= 0.f)
+    {
+        ResolveAndDispatch(Event);
+    }
+    else
+    {
+        PendingEvents.Add(MoveTemp(Event));
+    }
+}
+
+void UWireWorldSubsystem::CancelPending(AActor* Caller)
+{
+    for (int32 i = PendingEvents.Num() - 1; i >= 0; --i)
+    {
+        if (PendingEvents[i].Context.Caller.Get() == Caller)
+        {
+            PendingEvents.RemoveAtSwap(i, 1, EAllowShrinking::No);
+        }
+    }
 }
 
 //---------------------------------------
@@ -60,3 +101,49 @@ TArray<FName> UWireWorldSubsystem::GetWireNames() const
     Wires.GetKeys(Result);
     return Result;
 }
+
+void UWireWorldSubsystem::ResolveAndDispatch(const FWirePendingEvent& Event)
+{
+    // !self !caller !activator handle
+    const FString Target = Event.TargetEntity.ToString();
+    if (Target == "!self" || Target == "!caller")
+    {
+        if (auto* Caller = Event.Context.Caller.Get())
+        {
+            DispatchInput(Caller, Event);
+            return;
+        }
+    }
+    if (Target == "!activator")
+    {
+        if (auto* Activator = Event.Context.Activator.Get())
+        {
+            DispatchInput(Activator, Event);
+            return;
+        }
+    }
+    
+    for (TPair<FName, TWeakObjectPtr<UWireComponent>>& Wire : Wires)
+    {
+        const auto* Component = Wire.Value.Get();
+        if (!Component) continue;
+        
+        if (Wire.Key == Target)
+        {
+            if (Event.FireTime > 0.f)
+            {
+                PendingEvents.Add(Event);
+                continue;
+            }
+            DispatchInput(Component->GetOwner(), Event);
+        }
+    }
+    UE_LOG(LogWireKitRuntime, Warning, TEXT("UWireWorldSubsystem::ResolveAndDispatch - No target found"));
+}
+
+void UWireWorldSubsystem::DispatchInput(AActor* Target, const FWirePendingEvent& Event)
+{
+    // TODO : Find a way to use unreal reflection to find Event/Delegate input
+}
+
+

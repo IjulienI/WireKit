@@ -27,9 +27,6 @@ struct FWireConnection
     
     UPROPERTY(EditAnywhere, Category = "WireKit", meta = (ToolTip = "Fire once only"))
     bool bOnlyOnce = false;
-    
-    UPROPERTY(EditAnywhere, Category = "WireKit", meta = (ClampMin = "-1"))
-    int32 TimesToFire = -1;
 
     UPROPERTY(Transient)
     int32 FireCount = 0;

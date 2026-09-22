@@ -3,18 +3,34 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "WireTypes.h"
 #include "Subsystems/WorldSubsystem.h"
 #include "WireWorldSubsystem.generated.h"
 
-struct FWireConnection;
 class UWireComponent;
 
+struct FWirePendingEvent
+{
+    double FireTime = 0.0;
+    FName TargetEntity;
+    FName TargetInput;
+    FString Parameter;
+    FWireContext Context;
+};
+
 UCLASS()
-class WIREKITRUNTIME_API UWireWorldSubsystem : public UWorldSubsystem
+class WIREKITRUNTIME_API UWireWorldSubsystem : public UWorldSubsystem, public FTickableGameObject
 {
     GENERATED_BODY()
     
 public:
+    //---------------------------------------
+    // FTickableGameObject Overrides
+    //---------------------------------------
+    virtual void Tick(float DeltaTime) override;
+    virtual TStatId GetStatId() const override  { RETURN_QUICK_DECLARE_CYCLE_STAT(UWireWorldSubsystem, STATGROUP_Tickables); }
+    virtual bool IsTickable() const override { return PendingEvents.Num() > 0; }
+    
     //---------------------------------------
     // Registering
     //---------------------------------------
@@ -28,6 +44,7 @@ public:
     // Public API
     //---------------------------------------
     void QueueEvent(const FWireConnection& Connection, AActor* Caller, AActor* Activator);
+    void CancelPending(AActor* Caller);
 
     //---------------------------------------
     // Debug
@@ -40,7 +57,14 @@ public:
     
 private:
     //---------------------------------------
+    // Internal func
+    //---------------------------------------
+    void ResolveAndDispatch(const FWirePendingEvent& Event);
+    void DispatchInput(AActor* Target, const FWirePendingEvent& Event);
+    
+    //---------------------------------------
     // Internal vars
     //---------------------------------------
     TMultiMap<FName, TWeakObjectPtr<UWireComponent>> Wires;
+    TArray<FWirePendingEvent> PendingEvents;
 };
