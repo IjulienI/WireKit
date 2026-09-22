@@ -8,6 +8,7 @@
 #include "WireComponent.generated.h"
 
 class UWireWorldSubsystem;
+
 /**
  * Connects this actor's events to actions on other actors, configured directly in the Details panel.
  * Pick an output, a target and an input, with an optional parameter, delay and fire limit. No code required.
@@ -30,6 +31,14 @@ public:
     // Getters
     //---------------------------------------
     FName GetObjectName() const { return Name; }
+    const TArray<FWireConnection>& GetConnections() const { return Connections; }
+    const TArray<FName>& GetCustomOutputs() { return CustomOutputs; }
+
+    //---------------------------------------
+    // Functions
+    //---------------------------------------
+    UFUNCTION(BlueprintCallable, Category = "WireKit")
+    void FireOutput(FName OutputName, AActor* Activator);
     
 private:
     //---------------------------------------
@@ -39,10 +48,10 @@ private:
     FName Name = NAME_None;
     
     UPROPERTY(EditAnywhere, Category = "WireKit", meta = (AllowPrivateAccess = true))
-    TArray<FWireOutput> Outputs;
+    TArray<FWireConnection> Connections;
     
-    UPROPERTY(EditAnywhere, Category = "WireKit", meta = (AllowPrivateAccess = true, EditCondition = false))
-    TArray<FWireInput> Inputs;
+    UPROPERTY(EditAnywhere, Category = "WireKit")
+    TArray<FName> CustomOutputs;
 
     //---------------------------------------
     // Cache

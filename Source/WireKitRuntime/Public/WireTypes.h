@@ -6,7 +6,7 @@
 #include "WireTypes.generated.h"
 
 USTRUCT(BlueprintType)
-struct FWireOutput
+struct FWireConnection
 {
     GENERATED_BODY()
     
@@ -27,28 +27,19 @@ struct FWireOutput
     
     UPROPERTY(EditAnywhere, Category = "WireKit", meta = (ToolTip = "Fire once only"))
     bool bOnlyOnce = false;
+    
+    UPROPERTY(EditAnywhere, Category = "WireKit", meta = (ClampMin = "-1"))
+    int32 TimesToFire = -1;
+
+    UPROPERTY(Transient)
+    int32 FireCount = 0;
 };
 
 USTRUCT(BlueprintType)
-struct FWireInput
+struct FWireContext
 {
     GENERATED_BODY()
-    
-    UPROPERTY(EditAnywhere, Category = "WireKit")
-    FName Source = NAME_None;
-    
-    UPROPERTY(EditAnywhere, Category = "WireKit")
-    FName Output = NAME_None;
-    
-    UPROPERTY(EditAnywhere, Category = "WireKit")
-    FName MyInput = NAME_None;
-    
-    UPROPERTY(EditAnywhere, Category = "WireKit")
-    FString Parameter = FString();
-    
-    UPROPERTY(EditAnywhere, Category = "WireKit")
-    float Delay = 0.0f;
-    
-    UPROPERTY(EditAnywhere, Category = "WireKit")
-    bool bOnlyOnce = false;
+
+    UPROPERTY(BlueprintReadOnly) TWeakObjectPtr<AActor> Caller;
+    UPROPERTY(BlueprintReadOnly) TWeakObjectPtr<AActor> Activator;
 };
