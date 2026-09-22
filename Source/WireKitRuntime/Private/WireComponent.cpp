@@ -3,7 +3,6 @@
 
 #include "WireComponent.h"
 
-#include "WireLog.h"
 #include "WireWorldSubsystem.h"
 
 
