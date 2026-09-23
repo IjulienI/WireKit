@@ -85,33 +85,6 @@ void UWireWorldSubsystem::CancelPending(AActor* Caller)
     }
 }
 
-//---------------------------------------
-// Debug
-//---------------------------------------
-TArray<UWireComponent*> UWireWorldSubsystem::GetWiresByName(const FName& WireName) const
-{
-    TArray<TWeakObjectPtr<UWireComponent>> Found;
-    Wires.MultiFind(WireName, Found);
-
-    TArray<UWireComponent*> Result;
-    Result.Reserve(Found.Num());
-    for (const TWeakObjectPtr<UWireComponent>& Wire : Found)
-    {
-        if (UWireComponent* Valid = Wire.Get())
-        {
-            Result.Add(Valid);
-        }
-    }
-    return Result;
-}
-
-TArray<FName> UWireWorldSubsystem::GetWireNames() const
-{
-    TArray<FName> Result;
-    Wires.GetKeys(Result);
-    return Result;
-}
-
 void UWireWorldSubsystem::ResolveAndDispatch(const FWirePendingEvent& Event)
 {
     // !self !caller !activator handle

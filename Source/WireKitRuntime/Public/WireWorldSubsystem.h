@@ -45,15 +45,6 @@ public:
     //---------------------------------------
     void QueueEvent(const FWireConnection& Connection, AActor* Caller, AActor* Activator);
     void CancelPending(AActor* Caller);
-
-    //---------------------------------------
-    // Debug
-    //---------------------------------------
-    UFUNCTION(BlueprintCallable, Category = "WireKit", meta = (DevelopmentOnly))
-    TArray<UWireComponent*> GetWiresByName(const FName& WireName) const;
-    
-    UFUNCTION(BlueprintCallable, Category = "WireKit", meta = (DevelopmentOnly))
-    TArray<FName> GetWireNames() const;
     
 private:
     //---------------------------------------
