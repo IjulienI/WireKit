@@ -22,7 +22,9 @@ public class WireKitEditor : ModuleRules
                 "SlateCore",
                 "WireKitRuntime",
                 "EditorSubsystem",
-                "UnrealEd"
+                "UnrealEd",
+                "ToolMenus",
+                "InputCore",
             }
         );
     }

@@ -17,7 +17,7 @@
 		{
 			"Name": "WireKitEditor",
 			"Type": "Editor",
-			"LoadingPhase": "Default"
+			"LoadingPhase": "PostEngineInit"
 		},
 		{
 			"Name": "WireKitRuntime",
