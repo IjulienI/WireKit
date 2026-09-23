@@ -6,6 +6,13 @@
 #include "WireComponent.h"
 #include "WireLog.h"
 
+namespace WireKeywords
+{
+    inline const FName Self(TEXT("!Self"));
+    inline const FName Caller(TEXT("!Caller"));
+    inline const FName Activator(TEXT("!Activator"));
+}
+
 void UWireWorldSubsystem::RegisterObject(UWireComponent* WireComponent)
 {
     if (WireComponent)
@@ -51,6 +58,8 @@ void UWireWorldSubsystem::QueueEvent(const FWireConnection& Connection, AActor* 
     Event.TargetEntity = Connection.TargetEntity;
     Event.TargetInput = Connection.TargetInput;
     Event.Parameter = Connection.Parameter;
+    Event.Context.Self = Caller;
+    // TODO : Find a way to get the real Caller
     Event.Context.Caller = Caller;
     Event.Context.Activator = Activator;
     
@@ -105,45 +114,92 @@ TArray<FName> UWireWorldSubsystem::GetWireNames() const
 void UWireWorldSubsystem::ResolveAndDispatch(const FWirePendingEvent& Event)
 {
     // !self !caller !activator handle
-    const FString Target = Event.TargetEntity.ToString();
-    if (Target == "!self" || Target == "!caller")
+    const FName Target = Event.TargetEntity;
+    
+    if (Target == WireKeywords::Self)
     {
-        if (auto* Caller = Event.Context.Caller.Get())
+        if (AActor* Self = Event.Context.Self.Get())
+        {
+            DispatchInput(Self, Event);
+        }
+        else
+        {
+            UE_LOG(LogWireKitRuntime, Verbose,
+                TEXT("ResolveAndDispatch - '%s' is no longer valid, input '%s' skipped"),
+                *Target.ToString(), *Event.TargetInput.ToString());
+        }
+        return;
+    }
+    if (Target == WireKeywords::Caller)
+    {
+        if (AActor* Caller = Event.Context.Caller.Get())
         {
             DispatchInput(Caller, Event);
-            return;
         }
+        else
+        {
+            UE_LOG(LogWireKitRuntime, Verbose,
+                TEXT("ResolveAndDispatch - '%s' is no longer valid, input '%s' skipped"),
+                *Target.ToString(), *Event.TargetInput.ToString());
+        }
+        return;
     }
-    if (Target == "!activator")
+    if (Target == WireKeywords::Activator)
     {
-        if (auto* Activator = Event.Context.Activator.Get())
+        if (AActor* Activator = Event.Context.Activator.Get())
         {
             DispatchInput(Activator, Event);
-            return;
         }
+        else
+        {
+            UE_LOG(LogWireKitRuntime, Verbose,
+                TEXT("ResolveAndDispatch - '%s' is no longer valid, input '%s' skipped"),
+                *Target.ToString(), *Event.TargetInput.ToString());
+        }
+        return;
     }
     
-    for (TPair<FName, TWeakObjectPtr<UWireComponent>>& Wire : Wires)
+    TArray<TWeakObjectPtr<UWireComponent>> Found;
+    Wires.MultiFind(Target, Found);
+
+    bool bDispatched = false;
+    for (const TWeakObjectPtr<UWireComponent>& Wire : Found)
     {
-        const auto* Component = Wire.Value.Get();
-        if (!Component) continue;
-        
-        if (Wire.Key == Target)
+        const UWireComponent* Component = Wire.Get();
+        if (!Component)
         {
-            if (Event.FireTime > 0.f)
-            {
-                PendingEvents.Add(Event);
-                continue;
-            }
-            DispatchInput(Component->GetOwner(), Event);
+            Wires.RemoveSingle(Target, Wire);
+            continue;
+        }
+
+        if (AActor* Owner = Component->GetOwner())
+        {
+            DispatchInput(Owner, Event);
+            bDispatched = true;
         }
     }
-    UE_LOG(LogWireKitRuntime, Warning, TEXT("UWireWorldSubsystem::ResolveAndDispatch - No target found"));
+
+    if (!bDispatched)
+    {
+        UE_LOG(LogWireKitRuntime, Warning,
+            TEXT("ResolveAndDispatch - No target named '%s' for input '%s' (caller: %s)"),
+            *Target.ToString(), *Event.TargetInput.ToString(),
+            *GetNameSafe(Event.Context.Caller.Get()));
+    }
 }
 
 void UWireWorldSubsystem::DispatchInput(AActor* Target, const FWirePendingEvent& Event)
 {
-    // TODO : Find a way to use unreal reflection to find Event/Delegate input
+    if (!Target) return;
+    
+    UFunction* Function = Target->FindFunctionChecked(Event.TargetInput);
+
+    if (Function)
+    {
+        Target->ProcessEvent(Function, nullptr);
+    }
+    
+    // TODO : Add function param handle
 }
 
 

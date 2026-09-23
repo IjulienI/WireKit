@@ -36,7 +36,8 @@ USTRUCT(BlueprintType)
 struct FWireContext
 {
     GENERATED_BODY()
-
+    
+    UPROPERTY(BlueprintReadOnly) TWeakObjectPtr<AActor> Self;
     UPROPERTY(BlueprintReadOnly) TWeakObjectPtr<AActor> Caller;
     UPROPERTY(BlueprintReadOnly) TWeakObjectPtr<AActor> Activator;
 };
