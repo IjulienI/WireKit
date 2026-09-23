@@ -4,7 +4,7 @@
 #include "WireWorldSubsystem.h"
 
 #include "WireComponent.h"
-#include "WireLog.h"
+#include "WireRuntimeLog.h"
 
 namespace WireKeywords
 {
