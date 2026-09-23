@@ -82,14 +82,14 @@ WireKit brings this workflow to Unreal Engine, while feeling native to it. The g
 ## Roadmap
 
 ### Phase 1: Runtime core
-- [ ] `UWireComponent` with a serialized list of connections
-- [ ] `UWireSubsystem` with actor registration and name lookup
-- [ ] Firing outputs and calling inputs by name (C++ and Blueprint)
+- [x] `UWireComponent` with a serialized list of connections
+- [x] `UWireSubsystem` with actor registration and name lookup
+- [x] Firing outputs and calling inputs by name (C++ and Blueprint)
 - [ ] Typed parameters parsed from text
 - [ ] Wildcard targets (`door_*`)
-- [ ] Special targets : `!self`, `!activator`, `!caller`
-- [ ] Delayed events and "times to fire" limit
-- [ ] `CancelPending` input to cancel queued events
+- [x] Special targets : `!self`, `!activator`, `!caller`
+- [x] Delayed events and "times to fire" limit
+- [x] `CancelPending` input to cancel queued events
 - [ ] Built-in inputs on every actor : `Enable`, `Disable`, `Kill`
 
 ### Phase 2: Editor tools
