@@ -10,6 +10,8 @@ public:
     virtual void StartupModule() override;
     virtual void ShutdownModule() override;
     
+    static const FName WireKitDetailsTabId;
 private:
     void BindGlobalWireKitEditorCommands();
+    TSharedRef<SDockTab> SpawnWireKitDetailsTab(const FSpawnTabArgs& Args);
 };

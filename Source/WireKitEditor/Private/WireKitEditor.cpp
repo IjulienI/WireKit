@@ -2,13 +2,22 @@
 
 #include "LevelEditor.h"
 #include "WireEditorCommands.h"
+#include "WireKitDetails.h"
 
 #define LOCTEXT_NAMESPACE "FWireKitEditorModule"
+
+const FName FWireKitEditorModule::WireKitDetailsTabId(TEXT("WireKitDetails"));
 
 void FWireKitEditorModule::StartupModule()
 {
 	FWireEditorCommands::Register();
 	BindGlobalWireKitEditorCommands();
+	
+	FGlobalTabmanager::Get()->RegisterNomadTabSpawner(
+			WireKitDetailsTabId,
+			FOnSpawnTab::CreateRaw(this, &FWireKitEditorModule::SpawnWireKitDetailsTab))
+		.SetDisplayName(LOCTEXT("TabTitle", "WireKit Details"))
+		.SetMenuType(ETabSpawnerMenuType::Hidden);
 	
 	UToolMenus::RegisterStartupCallback(
 		FSimpleMulticastDelegate::FDelegate::CreateStatic(&FWireMenu::RegisterLevelEditorMenus));
@@ -16,8 +25,10 @@ void FWireKitEditorModule::StartupModule()
 
 void FWireKitEditorModule::ShutdownModule()
 {
-	UToolMenus::UnRegisterStartupCallback(this);
-	UToolMenus::UnregisterOwner(this);
+	if (FSlateApplication::IsInitialized())
+	{
+		FGlobalTabmanager::Get()->UnregisterNomadTabSpawner(WireKitDetailsTabId);
+	}
 
 	FWireEditorCommands::Unregister();
 }
@@ -33,6 +44,15 @@ void FWireKitEditorModule::BindGlobalWireKitEditorCommands()
 	ActionList.MapAction(
 		Commands.OpenViewKitDetails,
 		FExecuteAction::CreateStatic(&FWireEditorActionCallbacks::OpenViewKitDetails));
+}
+
+TSharedRef<SDockTab> FWireKitEditorModule::SpawnWireKitDetailsTab(const FSpawnTabArgs& Args)
+{
+	return SNew(SDockTab)
+		.TabRole(ETabRole::NomadTab)
+		[
+			SNew(SWireKitDetails)
+		];
 }
 
 #undef LOCTEXT_NAMESPACE

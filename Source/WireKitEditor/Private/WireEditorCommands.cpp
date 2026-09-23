@@ -3,6 +3,8 @@
 
 #include "WireEditorCommands.h"
 
+#include "WireKitEditor.h"
+
 #define LOCTEXT_NAMESPACE "WireEditorActions"
 
 FWireEditorCommands::FWireEditorCommands() 
@@ -30,7 +32,7 @@ void FWireEditorCommands::RegisterCommands()
 
 void FWireEditorActionCallbacks::OpenViewKitDetails()
 {
-	
+	FGlobalTabmanager::Get()->TryInvokeTab(FWireKitEditorModule::WireKitDetailsTabId);
 }
 
 UE_ENABLE_OPTIMIZATION_SHIP
