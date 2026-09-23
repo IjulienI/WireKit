@@ -19,7 +19,10 @@ public class WireKitEditor : ModuleRules
                 "CoreUObject",
                 "Engine",
                 "Slate",
-                "SlateCore"
+                "SlateCore",
+                "WireKitRuntime",
+                "EditorSubsystem",
+                "UnrealEd"
             }
         );
     }
