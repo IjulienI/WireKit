@@ -4,4 +4,4 @@
 
 #include "CoreMinimal.h"
 
-DECLARE_LOG_CATEGORY_EXTERN(LogWireKitRuntime, Log, All);
+DECLARE_LOG_CATEGORY_EXTERN(LogWireKitEditor, Log, All);
