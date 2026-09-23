@@ -166,9 +166,19 @@ void UWireWorldSubsystem::DispatchInput(AActor* Target, const FWirePendingEvent&
 {
     if (!Target) return;
     
-    UFunction* Function = Target->FindFunctionChecked(Event.TargetInput);
+    UFunction* Function = Target->FindFunction(Event.TargetInput);
 
-    if (Function)
+    if (!Function)
+    {
+        UE_LOG(LogWireKitRuntime, Warning,
+            TEXT("DispatchInput - No function named '%s' in actor '%s' (caller: %s)"),
+            *Event.TargetInput.ToString(),*GetNameSafe(Target),
+            *GetNameSafe(Event.Context.Caller.Get()));
+        return;
+    }
+    
+    
+    if (Function->ParmsSize == 0)
     {
         Target->ProcessEvent(Function, nullptr);
     }
