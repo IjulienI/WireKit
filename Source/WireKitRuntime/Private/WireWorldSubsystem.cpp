@@ -47,6 +47,7 @@ void UWireWorldSubsystem::Tick(float DeltaTime)
         {
             const FWirePendingEvent Event = PendingEvents[i];
             PendingEvents.RemoveAtSwap(i, 1, EAllowShrinking::No);
+            ResolveAndDispatch(Event);
         }
     }
 }
