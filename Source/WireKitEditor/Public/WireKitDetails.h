@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "WireKitDetailsMutliColumn.h"
 
 /**
  * 
@@ -18,4 +19,9 @@ public:
 	
 private:
 	int32 ActiveTab = 0;
+	
+	TSharedPtr<SEditableTextBox> NameEditableTextBox;
+	
+	TSharedPtr<SListView<TSharedPtr<FWireConnection>>> ConnectionList;
+	TArray<TSharedPtr<FWireConnection>> Connections;
 };

@@ -16,8 +16,10 @@ void FWireKitEditorModule::StartupModule()
 	FGlobalTabmanager::Get()->RegisterNomadTabSpawner(
 			WireKitDetailsTabId,
 			FOnSpawnTab::CreateRaw(this, &FWireKitEditorModule::SpawnWireKitDetailsTab))
-		.SetDisplayName(LOCTEXT("TabTitle", "WireKit Details"))
-		.SetMenuType(ETabSpawnerMenuType::Hidden);
+		.SetDisplayName(LOCTEXT("TabDisplayName", "WireKit Details"))
+		.SetTooltipText(LOCTEXT("TabTooltip", "Open WireKit details"))
+		.SetMenuType(ETabSpawnerMenuType::Hidden)
+		.SetIcon(FSlateIcon(FName("InsightsStyle"), "Icons.CalleesView"));
 	
 	UToolMenus::RegisterStartupCallback(
 		FSimpleMulticastDelegate::FDelegate::CreateStatic(&FWireMenu::RegisterLevelEditorMenus));
@@ -50,6 +52,7 @@ TSharedRef<SDockTab> FWireKitEditorModule::SpawnWireKitDetailsTab(const FSpawnTa
 {
 	return SNew(SDockTab)
 		.TabRole(ETabRole::NomadTab)
+		.Label(LOCTEXT("TabTitle", "WireKit Details"))
 		[
 			SNew(SWireKitDetails)
 		];
