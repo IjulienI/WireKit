@@ -35,6 +35,7 @@ private:
 	TSharedPtr<SSuggestionTextBox> InputSuggestionTextBox;
 	TSharedPtr<SSuggestionTextBox> ParameterSuggestionTextBox;
 	TSharedPtr<SSuggestionTextBox> DelaySuggestionTextBox;
+	TSharedPtr<SCheckBox> DoOnceSuggestionCheckBox;
 	
 	FDelegateHandle OnWireSelectionChangedHandle;
 	

@@ -481,7 +481,7 @@ void SWireKitDetails::Construct(const FArguments& InArgs)
 										.HAlign(HAlign_Left)
 										.Padding(0.0f)
 										[
-											SNew(SCheckBox)
+											SAssignNew(DoOnceSuggestionCheckBox ,SCheckBox)
 											.Padding(4.0f)
 											.OnCheckStateChanged_Lambda([this](const ECheckBoxState& CheckBoxState)
 											{
@@ -569,12 +569,24 @@ void SWireKitDetails::OnSelectionChanged()
 
 void SWireKitDetails::OnConnectionListSelectionChanged(const TSharedPtr<FWireConnection>& Connection)
 {
-	if (!Connection.IsValid()) return;
-	OutputSuggestionTextBox.Get()->SetText(FText::FromString(Connection->OutputName.ToString()));
-	TargetSuggestionTextBox.Get()->SetText(FText::FromString(Connection->TargetEntity.ToString()));
-	InputSuggestionTextBox.Get()->SetText(FText::FromString(Connection->TargetInput.ToString()));
-	ParameterSuggestionTextBox.Get()->SetText(FText::FromString(Connection->Parameter));
-	DelaySuggestionTextBox.Get()->SetText(FText::Format(LOCTEXT("DelayColumnFormat", "{0} s"), Connection->Delay));
+	if (Connection.IsValid())
+	{
+		OutputSuggestionTextBox.Get()->SetText(FText::FromString(Connection->OutputName.ToString()));
+		TargetSuggestionTextBox.Get()->SetText(FText::FromString(Connection->TargetEntity.ToString()));
+		InputSuggestionTextBox.Get()->SetText(FText::FromString(Connection->TargetInput.ToString()));
+		ParameterSuggestionTextBox.Get()->SetText(FText::FromString(Connection->Parameter));
+		DelaySuggestionTextBox.Get()->SetText(FText::Format(LOCTEXT("DelayColumnFormat", "{0} s"), Connection->Delay));
+		DoOnceSuggestionCheckBox.Get()->SetIsChecked(Connection->bOnlyOnce ? ECheckBoxState::Checked : ECheckBoxState::Unchecked);
+	}
+	else
+	{
+		OutputSuggestionTextBox.Get()->SetText(FText::FromString(TEXT("Output...")));
+		TargetSuggestionTextBox.Get()->SetText(FText::FromString(TEXT("Target...")));
+		InputSuggestionTextBox.Get()->SetText(FText::FromString(TEXT("Input...")));
+		ParameterSuggestionTextBox.Get()->SetText(FText::FromString(TEXT("<none>")));
+		DelaySuggestionTextBox.Get()->SetText(FText::FromString(TEXT("0 s")));
+		DoOnceSuggestionCheckBox.Get()->SetIsChecked(ECheckBoxState::Unchecked);
+	}
 }
 
 void SWireKitDetails::AddConnectionRow()
@@ -610,7 +622,7 @@ void SWireKitDetails::PasteConnectionRow()
 			Connections.Add(MakeShared<FWireConnection>(NewConnection));
 		}
 	}
-	RefreshConnectionList(true);
+	RefreshConnectionList();
 }
 
 void SWireKitDetails::DuplicateConnectionRow()
@@ -623,7 +635,7 @@ void SWireKitDetails::DuplicateConnectionRow()
 			Connections.Add(MakeShared<FWireConnection>(NewConnection));
 		}
 	}
-	RefreshConnectionList(true);
+	RefreshConnectionList();
 }
 
 void SWireKitDetails::RemoveConnectionRow()
@@ -635,7 +647,7 @@ void SWireKitDetails::RemoveConnectionRow()
 			Connections.Remove(WireConnection);
 		}
 	}
-	RefreshConnectionList();
+	RefreshConnectionList(true);
 }
 
 void SWireKitDetails::OnOutputContentCommitted(const FText& InText)
