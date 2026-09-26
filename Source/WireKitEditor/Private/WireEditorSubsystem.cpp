@@ -56,11 +56,19 @@ void UWireEditorSubsystem::OnActorSelectionChanged(const TArray<UObject*>& NewSe
 		const auto* Actor = Cast<AActor>(NewSelection[0]);
 		if (!Actor)
 		{
+			CurrentSelection = nullptr;
+			OnWireSelectionChanged.Broadcast();
 			return;
 		}
 		if (auto* WireComponent = Actor->GetComponentByClass<UWireComponent>())
 		{
 			CurrentSelection = WireComponent;
+			OnWireSelectionChanged.Broadcast();
+		}
+		else
+		{
+			CurrentSelection = nullptr;
+			OnWireSelectionChanged.Broadcast();
 		}
 	}
 }

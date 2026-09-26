@@ -2,7 +2,7 @@
 
 #include "LevelEditor.h"
 #include "WireEditorCommands.h"
-#include "WireKitDetails.h"
+#include "Slate/WireKitDetails.h"
 
 #define LOCTEXT_NAMESPACE "FWireKitEditorModule"
 

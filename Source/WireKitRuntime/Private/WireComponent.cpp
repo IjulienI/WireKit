@@ -65,3 +65,20 @@ void UWireComponent::FireOutput(FName OutputName, AActor* Activator)
         WireSubsystem->QueueEvent(Connection, GetOwner(), Activator);
     }
 }
+
+#if WITH_EDITOR
+TArray<UFunction*> UWireComponent::GetAllWireFunctions() const
+{
+    TArray<UFunction*> OutFunctions;
+    
+    for (TFieldIterator<UFunction> FuncIt(GetOwner()->GetClass()); FuncIt; ++FuncIt)
+    {
+        UFunction* Function = *FuncIt;
+        if (Function->GetMetaData("Category") == "WireKit")
+        {
+            OutFunctions.Add(Function);
+        }
+    }
+    return OutFunctions;
+}
+#endif

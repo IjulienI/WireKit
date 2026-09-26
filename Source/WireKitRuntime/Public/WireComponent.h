@@ -35,10 +35,20 @@ public:
     const TArray<FName>& GetCustomOutputs() { return CustomOutputs; }
 
     //---------------------------------------
+    // Setter
+    //---------------------------------------
+    void SetObjectName(const FName& NewName) { Name = NewName; }
+    void SetConnection(const TArray<FWireConnection>& NewConnections) { Connections = NewConnections; }
+
+    //---------------------------------------
     // Functions
     //---------------------------------------
     UFUNCTION(BlueprintCallable, Category = "WireKit")
     void FireOutput(FName OutputName, AActor* Activator);
+    
+#if WITH_EDITOR
+    TArray<UFunction*> GetAllWireFunctions() const;
+#endif
     
 private:
     //---------------------------------------

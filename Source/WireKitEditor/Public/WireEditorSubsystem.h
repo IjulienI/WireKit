@@ -7,9 +7,9 @@
 #include "WireEditorSubsystem.generated.h"
 
 class UWireComponent;
-/**
- * 
- */
+
+DECLARE_MULTICAST_DELEGATE(FOnWireSelectionChanged);
+
 UCLASS()
 class WIREKITEDITOR_API UWireEditorSubsystem : public UEditorSubsystem
 {
@@ -26,6 +26,11 @@ public:
 	// Getters
 	//---------------------------------------
 	TWeakObjectPtr<UWireComponent> GetCurrentSelection() const { return CurrentSelection; }
+
+	//---------------------------------------
+	// Public delegate
+	//---------------------------------------
+	FOnWireSelectionChanged OnWireSelectionChanged;
 	
 private:
 	//---------------------------------------
