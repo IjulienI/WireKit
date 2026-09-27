@@ -26,7 +26,7 @@ public:
 	// Getters
 	//---------------------------------------
 	TWeakObjectPtr<UWireComponent> GetCurrentSelection() const { return CurrentSelection; }
-	TArray<TWeakObjectPtr<UWireComponent>>& GetWires() { return Wires; }
+	TMultiMap<FName, TWeakObjectPtr<UWireComponent>>& GetWires() { return Wires; }
 
 	//---------------------------------------
 	// Public delegate
@@ -62,6 +62,6 @@ private:
 	//---------------------------------------
 	UPROPERTY()
 	TWeakObjectPtr<UWireComponent> CurrentSelection;
-	TArray<TWeakObjectPtr<UWireComponent>> Wires;
+	TMultiMap<FName, TWeakObjectPtr<UWireComponent>> Wires;
 	bool bWiresListDirty = false;
 };

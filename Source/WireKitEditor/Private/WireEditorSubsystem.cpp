@@ -56,7 +56,7 @@ void UWireEditorSubsystem::OnNewActorsPlaced(UObject* ObjToUse, const TArray<AAc
 		Actor->AddInstanceComponent(WireComponent);
 		WireComponent->RegisterComponent();
 		
-		Wires.Add(WireComponent);
+		Wires.Add(WireComponent->GetObjectName(),WireComponent);
 	}
 }
 
@@ -73,10 +73,7 @@ void UWireEditorSubsystem::OnLevelActorDeleted(AActor* Actor)
 		return;
 	}
 
-	Wires.RemoveAll([WireComponent](const TWeakObjectPtr<UWireComponent>& Component)
-	{
-		return Component.Get() == WireComponent;
-	});
+	Wires.Remove(WireComponent->GetObjectName(),WireComponent);
 
 	if (CurrentSelection.Get() == WireComponent)
 	{
@@ -150,7 +147,7 @@ void UWireEditorSubsystem::RefreshWires()
 		{
 			if (auto* WireComponent = Actor->GetComponentByClass<UWireComponent>())
 			{
-				Wires.Add(WireComponent);
+				Wires.Add(WireComponent->GetObjectName(),WireComponent);
 			}
 		}
 	}

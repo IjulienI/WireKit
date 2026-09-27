@@ -1,7 +1,11 @@
 ﻿#include "WireKitEditor.h"
 
 #include "LevelEditor.h"
+#include "UnrealEdGlobals.h"
+#include "WireComponent.h"
+#include "WireComponentVisualizer.h"
 #include "WireEditorCommands.h"
+#include "Editor/UnrealEdEngine.h"
 #include "Slate/WireKitDetails.h"
 
 #define LOCTEXT_NAMESPACE "FWireKitEditorModule"
@@ -23,6 +27,12 @@ void FWireKitEditorModule::StartupModule()
 	
 	UToolMenus::RegisterStartupCallback(
 		FSimpleMulticastDelegate::FDelegate::CreateStatic(&FWireMenu::RegisterLevelEditorMenus));
+	
+	if (GUnrealEd)
+	{
+		TSharedPtr<FWireComponentVisualizer> WireVisualizer = MakeShareable(new FWireComponentVisualizer);
+		GUnrealEd->RegisterComponentVisualizer(UWireComponent::StaticClass()->GetFName(), WireVisualizer);
+	}
 }
 
 void FWireKitEditorModule::ShutdownModule()
@@ -31,7 +41,12 @@ void FWireKitEditorModule::ShutdownModule()
 	{
 		FGlobalTabmanager::Get()->UnregisterNomadTabSpawner(WireKitDetailsTabId);
 	}
-
+	
+	if (GUnrealEd) 
+	{
+		GUnrealEd->UnregisterComponentVisualizer(UWireComponent::StaticClass()->GetFName());
+	}
+	
 	FWireEditorCommands::Unregister();
 }
 

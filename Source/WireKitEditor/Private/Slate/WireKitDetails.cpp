@@ -781,14 +781,17 @@ void SWireKitDetails::TargetShowingSuggestions(TArray<FString>& OutSuggestions)
 {
 	OutSuggestions = { "!Self", "!Activator", "!Caller" };
 
-	for (const TWeakObjectPtr<UWireComponent>& WireComponent : WireEditorSubsystem->GetWires())
+	TArray<FName> Wires; 
+	WireEditorSubsystem->GetWires().GetKeys(Wires);
+	
+	for (FName& WireName : Wires)
 	{
-		if (!WireComponent.IsValid() || WireComponent.Get() == CurrentWireComponent.Get())
+		if (!CurrentWireComponent.Get() || WireName == CurrentWireComponent.Get()->GetObjectName())
 		{
 			continue;
 		}
-		OutSuggestions.Add(WireComponent->GetObjectName().ToString());
-	}
+		OutSuggestions.Add(WireName.ToString());
+	} 
 }
 
 void SWireKitDetails::CancelChanges()
