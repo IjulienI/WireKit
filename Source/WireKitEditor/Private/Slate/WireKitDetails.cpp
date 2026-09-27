@@ -579,7 +579,7 @@ bool SWireKitDetails::GetSelectedConnection(TSharedPtr<FWireConnection>& OutConn
 bool SWireKitDetails::IsFilteredActor(const AActor* const Actor) const
 {
 	auto* WireComponent = Actor->FindComponentByClass<UWireComponent>();
-	return WireComponent != nullptr;
+	return WireComponent != nullptr && WireComponent != CurrentWireComponent;
 }
 
 void SWireKitDetails::OnActorSelected(AActor* InActor)
