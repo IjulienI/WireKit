@@ -90,14 +90,14 @@ WireKit brings this workflow to Unreal Engine, while feeling native to it. The g
 - [x] Special targets : `!self`, `!activator`, `!caller`
 - [x] Delayed events and "times to fire" limit
 - [x] `CancelPending` input to cancel queued events
-- [ ] Built-in inputs on every actor : `Enable`, `Disable`, `Kill`
+- [x] Built-in inputs on every actor : `Enable`, `Disable`, `Kill`
 
 ### Phase 2: Editor tools
-- [ ] Details panel customization with filtered dropdowns for outputs and inputs
-- [ ] Actor picker (eyedropper) for targets
+- [x] Details panel customization with filtered dropdowns for outputs and inputs
+- [x] Actor picker (eyedropper) for targets
 - [ ] Validation with clear errors (missing target, unknown input, bad parameter)
 - [ ] Reverse "Inputs" view. Which actors target the selected one
-- [ ] Viewport visualizer drawing wires between connected actors
+- [x] Viewport visualizer drawing wires between connected actors
 - [ ] Full Undo / Redo support
 
 ### Phase 3: Logic actors
