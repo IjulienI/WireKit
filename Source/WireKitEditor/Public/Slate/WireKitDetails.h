@@ -61,7 +61,9 @@ private:
 	void OnDelayContentCommitted(const FText& InText);
 	void OnDoOnceContentCommitted(const ECheckBoxState& InValue);
 	void RefreshFromSelection(TWeakObjectPtr<UWireComponent> InWireComponent);
+	
 	void OutputShowingSuggestions(TArray<FString>& OutSuggestions);
+	void InputShowingSuggestions(TArray<FString>& OutSuggestions);
 	void TargetShowingSuggestions(TArray<FString>& OutSuggestions);
 	
 	void RefreshConnectionList(bool bResetSelection = false);

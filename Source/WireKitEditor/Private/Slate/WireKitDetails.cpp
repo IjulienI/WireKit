@@ -385,7 +385,7 @@ void SWireKitDetails::Construct(const FArguments& InArgs)
 											.MinDesiredWidth(100.0f)
 											.OnShowingSuggestions_Lambda([this](const FString& Text, TArray<FString>& OutSuggestions)
 											{
-												// TODO : All detected outputs
+												InputShowingSuggestions(OutSuggestions);
 											})
 											.OnTextCommitted_Lambda([this](const FText& Text, const ETextCommit::Type CommitType)
 											{
@@ -762,6 +762,23 @@ void SWireKitDetails::OutputShowingSuggestions(TArray<FString>& OutSuggestions)
 	for (UFunction* WireFunction : CurrentWireComponent->GetAllWireFunctions())
 	{
 		Suggestions.Add(WireFunction->GetName());
+	}
+	OutSuggestions = Suggestions;
+}
+
+void SWireKitDetails::InputShowingSuggestions(TArray<FString>& OutSuggestions)
+{
+	TArray<FString> Suggestions;
+	
+	TArray<TWeakObjectPtr<UWireComponent>> TargetWireComponents;
+	WireEditorSubsystem->GetWires().MultiFind(GetCurrentConnection()->TargetEntity, TargetWireComponents);
+	
+	for (const TWeakObjectPtr<UWireComponent>& TargetWireComponent : TargetWireComponents)
+	{
+		for (UFunction* WireFunction : TargetWireComponent->GetAllWireFunctions())
+		{
+			Suggestions.Add(WireFunction->GetName());
+		}
 	}
 	OutSuggestions = Suggestions;
 }
