@@ -4,6 +4,7 @@
 #include "Slate/WireKitDetails.h"
 
 #include "EngineUtils.h"
+#include "PropertyCustomizationHelpers.h"
 #include "WireComponent.h"
 #include "Widgets/SBoxPanel.h"
 #include "Widgets/Input/SSegmentedControl.h"
@@ -18,6 +19,17 @@ const FEditableTextBoxStyle& TextBoxStyle = FAppStyle::Get().GetWidgetStyle<FEdi
 
 void SWireKitDetails::Construct(const FArguments& InArgs)
 {
+	TSharedRef<SWidget> ActorPicker = PropertyCustomizationHelpers::MakeInteractiveActorPicker(
+		FOnGetAllowedClasses::CreateLambda([](TArray<const UClass*>& AllowedClasses)
+		{
+			AllowedClasses.Add(AActor::StaticClass());
+		}), 
+		FOnShouldFilterActor::CreateSP(this, &SWireKitDetails::IsFilteredActor),
+		FOnActorSelected::CreateLambda([this](AActor* InActor)
+		{
+			OnActorSelected(InActor);
+		}));
+	
 	this->ChildSlot
 	[
 		SNew(SBorder)
@@ -343,6 +355,13 @@ void SWireKitDetails::Construct(const FArguments& InArgs)
 												}
 											})
 										]
+
+										+SHorizontalBox::Slot()
+										.AutoWidth()
+										.Padding(4.0f)
+										[
+											ActorPicker
+										]
 									]
 
 									+SVerticalBox::Slot()
@@ -540,13 +559,14 @@ void SWireKitDetails::Construct(const FArguments& InArgs)
 		]
 	];
 	
-	OnWireSelectionChangedHandle = GEditor->GetEditorSubsystem<UWireEditorSubsystem>()->OnWireSelectionChanged.AddRaw(this, &SWireKitDetails::OnSelectionChanged);
+	WireEditorSubsystem = GEditor->GetEditorSubsystem<UWireEditorSubsystem>();
+	OnWireSelectionChangedHandle = WireEditorSubsystem->OnWireSelectionChanged.AddRaw(this, &SWireKitDetails::OnSelectionChanged);
 	OnSelectionChanged();
 }
 
 SWireKitDetails::~SWireKitDetails()
 {
-	GEditor->GetEditorSubsystem<UWireEditorSubsystem>()->OnWireSelectionChanged.Remove(OnWireSelectionChangedHandle);
+	WireEditorSubsystem->OnWireSelectionChanged.Remove(OnWireSelectionChangedHandle);
 }
 
 bool SWireKitDetails::GetSelectedConnection(TSharedPtr<FWireConnection>& OutConnection) const
@@ -558,6 +578,32 @@ bool SWireKitDetails::GetSelectedConnection(TSharedPtr<FWireConnection>& OutConn
 	}
 	OutConnection =  SelectedConnections[0];
 	return true;
+}
+
+void SWireKitDetails::OnGetAllowedClasses(TArray<const UClass*>& AllowedClasses)
+{
+	AllowedClasses.Add(AActor::StaticClass());
+}
+
+bool SWireKitDetails::IsFilteredActor(const AActor* const Actor) const
+{
+	auto* WireComponent = Actor->FindComponentByClass<UWireComponent>();
+	return WireComponent != nullptr;
+}
+
+void SWireKitDetails::OnActorSelected(AActor* InActor)
+{
+	if (auto WireComponent = InActor->FindComponentByClass<UWireComponent>())
+	{
+		TargetSuggestionTextBox->SetText(FText::FromString(WireComponent->GetObjectName().ToString()));
+		// Idk if its good to do that, im drunk
+		OnTargetContentCommitted(TargetSuggestionTextBox->GetText());
+	}
+}
+
+void SWireKitDetails::ChangeLocalObjectName(const FName& NewLocalObjectName)
+{
+	
 }
 
 void SWireKitDetails::OnSelectionChanged()
@@ -781,6 +827,7 @@ void SWireKitDetails::ApplyChanges()
 	{
 		const FScopedTransaction Transaction(LOCTEXT("ApplyWire", "Edit Wire Connections"));
 		CurrentWireComponent->Modify();
+		CurrentWireComponent->GetOwner()->Modify();
 		
 		CurrentWireComponent->SetObjectName(LocalObjectName);
 		

@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "WireKitDetailsMutliColumn.h"
 
+class UWireEditorSubsystem;
 class UWireComponent;
 /**
  * 
@@ -39,8 +40,15 @@ private:
 	
 	FDelegateHandle OnWireSelectionChangedHandle;
 	
-	 bool GetSelectedConnection(TSharedPtr<FWireConnection>& OutConnection) const;
+	UWireEditorSubsystem* WireEditorSubsystem = nullptr;
 	
+	bool GetSelectedConnection(TSharedPtr<FWireConnection>& OutConnection) const;
+	
+	void OnGetAllowedClasses(TArray<const UClass*>& AllowedClasses);
+	bool IsFilteredActor(const AActor* const Actor) const;
+	void OnActorSelected(AActor* InActor);
+	
+	void ChangeLocalObjectName(const FName& NewLocalObjectName);
 	void OnSelectionChanged();
 	void OnConnectionListSelectionChanged(const TSharedPtr<FWireConnection>& Connection);
 	void AddConnectionRow();
