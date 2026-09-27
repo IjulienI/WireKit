@@ -32,7 +32,6 @@ public:
     //---------------------------------------
     FName GetObjectName() const { return Name; }
     const TArray<FWireConnection>& GetConnections() const { return Connections; }
-    const TArray<FName>& GetCustomOutputs() { return CustomOutputs; }
 
     //---------------------------------------
     // Setter
@@ -60,9 +59,6 @@ private:
     
     UPROPERTY(EditAnywhere, Category = "WireKit", meta = (AllowPrivateAccess = true))
     TArray<FWireConnection> Connections;
-    
-    UPROPERTY(EditAnywhere, Category = "WireKit")
-    TArray<FName> CustomOutputs;
 
     //---------------------------------------
     // Cache
