@@ -21,6 +21,8 @@ void UWireEditorSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 	
 	OnLevelActorDeletedHandle = GEngine->OnLevelActorDeleted().AddUObject(this, &UWireEditorSubsystem::OnLevelActorDeleted);
 	
+	OnObjectsReplacedHandle = FCoreUObjectDelegates::OnObjectsReplaced.AddUObject(this, &UWireEditorSubsystem::OnObjectsReplaced);
+	
 	auto& LevelEditor = FModuleManager::LoadModuleChecked<FLevelEditorModule>("LevelEditor");
 	OnActorSelectionChangedHandle = LevelEditor.OnActorSelectionChanged().AddUObject(this, &UWireEditorSubsystem::OnActorSelectionChanged);
 }
@@ -35,6 +37,8 @@ void UWireEditorSubsystem::Deinitialize()
 	FEditorDelegates::OnNewActorsPlaced.Remove(OnNewActorsPlacedHandle);
 	FEditorDelegates::OnMapOpened.Remove(OnMapOpenedHandle);
 	FEditorDelegates::PostUndoRedo.Remove(OnPostUndoRedoHandle);
+	
+	FCoreUObjectDelegates::OnObjectsReplaced.Remove(OnObjectsReplacedHandle);
 	
 	auto& LevelEditor = FModuleManager::LoadModuleChecked<FLevelEditorModule>("LevelEditor");
 	LevelEditor.OnActorSelectionChanged().Remove(OnActorSelectionChangedHandle);
@@ -129,6 +133,22 @@ void UWireEditorSubsystem::OnPostUndoRedo()
 			}
 		}
 	});
+}
+
+void UWireEditorSubsystem::OnObjectsReplaced(const TMap<UObject*, UObject*>& OldToNewInstanceMap)
+{
+	for (const auto& Pair : OldToNewInstanceMap)
+	{
+		UWireComponent* OldComponent = Cast<UWireComponent>(Pair.Key);
+		UWireComponent* NewComponent = Cast<UWireComponent>(Pair.Value);
+
+		if (OldComponent && NewComponent)
+		{
+			const FName ObjectName = OldComponent->GetObjectName();
+			Wires.RemoveSingle(ObjectName, OldComponent);
+			Wires.Add(NewComponent->GetObjectName(), NewComponent);
+		}
+	}
 }
 
 void UWireEditorSubsystem::RefreshWires()

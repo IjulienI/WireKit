@@ -42,6 +42,7 @@ private:
 	void OnActorSelectionChanged(const TArray<UObject*>& NewSelection, bool bForceRefresh);
 	void OnMapOpened(const FString& InMapName, bool bIsTemplate);
 	void OnPostUndoRedo();
+	void OnObjectsReplaced(const TMap<UObject*, UObject*>& OldToNewInstanceMap);
 
 	//---------------------------------------
 	// Delegate handles
@@ -51,6 +52,7 @@ private:
 	FDelegateHandle OnPostUndoRedoHandle;
 	FDelegateHandle OnMapOpenedHandle;
 	FDelegateHandle OnActorSelectionChangedHandle;
+	FDelegateHandle OnObjectsReplacedHandle;
 
 	//---------------------------------------
 	// Internal funcs

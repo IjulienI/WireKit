@@ -23,7 +23,10 @@ void FWireComponentVisualizer::DrawVisualization(const UActorComponent* Componen
         Wires.MultiFind(Connection.TargetEntity, TargetComponents);
         for (const TWeakObjectPtr<UWireComponent>& TargetComponent : TargetComponents)
         {
-            TargetLocations.Add(TargetComponent->GetOwner()->GetActorLocation());
+            if (TargetComponent.IsValid() && TargetComponent->GetOwner())
+            {
+                TargetLocations.Add(TargetComponent.Get()->GetOwner()->GetActorLocation());
+            }
         }
     }
     
