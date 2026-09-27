@@ -747,10 +747,9 @@ void SWireKitDetails::OutputShowingSuggestions(TArray<FString>& OutSuggestions)
 		return;
 	}
 	
-	
-	for (UFunction* WireFunction : CurrentWireComponent->GetAllWireFunctions())
+	for (FMulticastDelegateProperty* WireDelegateFunction : CurrentWireComponent->GetAllOutputs())
 	{
-		Suggestions.Add(WireFunction->GetName());
+		Suggestions.Add(WireDelegateFunction->GetName());
 	}
 	OutSuggestions = Suggestions;
 }
@@ -764,7 +763,7 @@ void SWireKitDetails::InputShowingSuggestions(TArray<FString>& OutSuggestions)
 	
 	for (const TWeakObjectPtr<UWireComponent>& TargetWireComponent : TargetWireComponents)
 	{
-		for (UFunction* WireFunction : TargetWireComponent->GetAllWireFunctions())
+		for (UFunction* WireFunction : TargetWireComponent->GetAllInputs())
 		{
 			Suggestions.Add(WireFunction->GetName());
 		}

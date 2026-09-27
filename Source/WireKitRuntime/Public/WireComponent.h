@@ -47,7 +47,8 @@ public:
     void FireOutput(FName OutputName, AActor* Activator);
     
 #if WITH_EDITOR
-    TArray<UFunction*> GetAllWireFunctions() const;
+    TArray<UFunction*> GetAllInputs() const;
+    TArray<FMulticastDelegateProperty*> GetAllOutputs() const;
 #endif
     
 private:

@@ -67,7 +67,7 @@ void UWireComponent::FireOutput(FName OutputName, AActor* Activator)
 }
 
 #if WITH_EDITOR
-TArray<UFunction*> UWireComponent::GetAllWireFunctions() const
+TArray<UFunction*> UWireComponent::GetAllInputs() const
 {
     TArray<UFunction*> OutFunctions;
     
@@ -80,5 +80,20 @@ TArray<UFunction*> UWireComponent::GetAllWireFunctions() const
         }
     }
     return OutFunctions;
+}
+
+TArray<FMulticastDelegateProperty*> UWireComponent::GetAllOutputs() const
+{
+    TArray<FMulticastDelegateProperty*> OutDelegates;
+    
+    for (TFieldIterator<FMulticastDelegateProperty> PropIt(GetOwner()->GetClass()); PropIt; ++PropIt)
+    {
+        FMulticastDelegateProperty* Property = *PropIt;
+        if (Property->GetMetaData("Category") == "WireKit")
+        {
+            OutDelegates.Add(Property);
+        }
+    }
+    return OutDelegates;
 }
 #endif
