@@ -65,6 +65,7 @@ private:
 	void TargetShowingSuggestions(TArray<FString>& OutSuggestions);
 	
 	void RefreshConnectionList(bool bResetSelection = false);
+	TSharedPtr<FWireConnection> GetCurrentConnection() const;
 	
 	void CancelChanges();
 	void ApplyChanges();

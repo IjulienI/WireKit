@@ -688,62 +688,50 @@ void SWireKitDetails::RemoveConnectionRow()
 
 void SWireKitDetails::OnOutputContentCommitted(const FText& InText)
 {
-	const auto SelectedConnections = ConnectionList->GetSelectedItems();
-	if (SelectedConnections.Num() != 1 || !SelectedConnections[0].IsValid())
+	if (const auto CurrentConnection = GetCurrentConnection())
 	{
-		return;
+		CurrentConnection->OutputName = *InText.ToString();
 	}
-	SelectedConnections[0]->OutputName = *InText.ToString();
 }
 
 void SWireKitDetails::OnTargetContentCommitted(const FText& InText)
 {
-	const auto SelectedConnections = ConnectionList->GetSelectedItems();
-	if (SelectedConnections.Num() != 1 || !SelectedConnections[0].IsValid())
+	if (const auto CurrentConnection = GetCurrentConnection())
 	{
-		return;
+		CurrentConnection->TargetEntity = *InText.ToString();
 	}
-	SelectedConnections[0]->TargetEntity = *InText.ToString();
 }
 
 void SWireKitDetails::OnInputContentCommitted(const FText& InText)
 {
-	const auto SelectedConnections = ConnectionList->GetSelectedItems();
-	if (SelectedConnections.Num() != 1 || !SelectedConnections[0].IsValid())
+	if (const auto CurrentConnection = GetCurrentConnection())
 	{
-		return;
+		CurrentConnection->TargetInput = *InText.ToString();
 	}
-	SelectedConnections[0]->TargetInput = *InText.ToString();
 }
 
 void SWireKitDetails::OnParameterContentCommitted(const FText& InText)
 {
-	const auto SelectedConnections = ConnectionList->GetSelectedItems();
-	if (SelectedConnections.Num() != 1 || !SelectedConnections[0].IsValid())
+	if (const auto CurrentConnection = GetCurrentConnection())
 	{
-		return;
+		CurrentConnection->Parameter = *InText.ToString();
 	}
-	SelectedConnections[0]->Parameter = *InText.ToString();
 }
 
 void SWireKitDetails::OnDelayContentCommitted(const FText& InText)
 {
-	const auto SelectedConnections = ConnectionList->GetSelectedItems();
-	if (SelectedConnections.Num() != 1 || !SelectedConnections[0].IsValid())
+	if (const auto CurrentConnection = GetCurrentConnection())
 	{
-		return;
+		CurrentConnection->Delay = FCString::Atof(*InText.ToString());
 	}
-	SelectedConnections[0]->Delay = FCString::Atof(*InText.ToString());
 }
 
 void SWireKitDetails::OnDoOnceContentCommitted(const ECheckBoxState& InValue)
 {
-	const auto SelectedConnections = ConnectionList->GetSelectedItems();
-	if (SelectedConnections.Num() != 1 || !SelectedConnections[0].IsValid())
+	if (const auto CurrentConnection = GetCurrentConnection())
 	{
-		return;
+		CurrentConnection->bOnlyOnce = InValue == ECheckBoxState::Checked;
 	}
-	SelectedConnections[0]->bOnlyOnce = InValue == ECheckBoxState::Checked;
 }
 
 void SWireKitDetails::RefreshFromSelection(TWeakObjectPtr<UWireComponent> InWireComponent)
@@ -769,6 +757,7 @@ void SWireKitDetails::OutputShowingSuggestions(TArray<FString>& OutSuggestions)
 		OutSuggestions = Suggestions;
 		return;
 	}
+	
 	
 	for (UFunction* WireFunction : CurrentWireComponent->GetAllWireFunctions())
 	{
@@ -832,6 +821,16 @@ void SWireKitDetails::RefreshConnectionList(bool bResetSelection)
 	{
 		ConnectionList->SetSelection(Connections.Last());
 	}
+}
+
+TSharedPtr<FWireConnection> SWireKitDetails::GetCurrentConnection() const
+{
+	const auto SelectedConnections = ConnectionList->GetSelectedItems();
+	if (SelectedConnections.Num() != 1 || !SelectedConnections[0].IsValid())
+	{
+		return nullptr;
+	}
+	return SelectedConnections[0];
 }
 
 #undef LOCTEXT_NAMESPACE
