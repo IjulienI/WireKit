@@ -67,6 +67,84 @@ void UWireComponent::FireOutput(FName OutputName, AActor* Activator)
     }
 }
 
+void UWireComponent::Destroy()
+{
+    GetOwner()->Destroy();
+}
+
+void UWireComponent::DestroyHierarchy()
+{
+    // TODO : Find all liked actors
+    GetOwner()->Destroy();
+}
+
+void UWireComponent::Respawn()
+{
+    UWorld* World = GetWorld();
+    AActor* Owner = GetOwner();
+    if (!World || !Owner)
+    {
+        return;
+    }
+
+    FActorSpawnParameters SpawnParams;
+    SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
+    AActor* NewActor = World->SpawnActor(Owner->GetClass(), &Owner->GetActorTransform(), SpawnParams);
+    if (!NewActor)
+    {
+        return;
+    }
+
+    if (UWireComponent* NewWireComponent = NewActor->FindComponentByClass<UWireComponent>())
+    {
+        if (WireSubsystem.IsValid())
+        {
+            WireSubsystem->UnregisterObject(NewWireComponent);
+        }
+
+        NewWireComponent->SetObjectName(GetObjectName());
+        NewWireComponent->SetConnection(GetConnections());
+
+        if (NewWireComponent->WireSubsystem.IsValid())
+        {
+            NewWireComponent->WireSubsystem->RegisterObject(NewWireComponent);
+        }
+    }
+
+    Owner->Destroy();
+}
+
+void UWireComponent::EnableTick()
+{
+    GetOwner()->SetActorTickEnabled(true);
+}
+
+void UWireComponent::DisableTick()
+{
+    GetOwner()->SetActorTickEnabled(false);
+}
+
+void UWireComponent::Show()
+{
+    GetOwner()->SetActorHiddenInGame(false);
+}
+
+void UWireComponent::Hide()
+{
+    GetOwner()->SetActorHiddenInGame(true);
+}
+
+void UWireComponent::EnableCollision()
+{
+    GetOwner()->SetActorEnableCollision(true);
+}
+
+void UWireComponent::DisableCollision()
+{
+    GetOwner()->SetActorEnableCollision(false);
+}
+
 #if WITH_EDITOR
 TArray<UFunction*> UWireComponent::GetAllInputs() const
 {

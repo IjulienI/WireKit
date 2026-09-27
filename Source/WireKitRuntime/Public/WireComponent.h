@@ -42,8 +42,38 @@ public:
     //---------------------------------------
     // Functions
     //---------------------------------------
-    UFUNCTION(BlueprintCallable, Category = "WireKit")
+    UFUNCTION(BlueprintCallable, Category = "CoreWireKit")
     void FireOutput(FName OutputName, AActor* Activator);
+
+    //---------------------------------------
+    // Accessible functions
+    //---------------------------------------
+    UFUNCTION(Category = "WireKit")
+    void Destroy();
+    
+    UFUNCTION(Category = "WireKit")
+    void DestroyHierarchy();
+    
+    UFUNCTION(Category = "WireKit")
+    void Respawn();
+    
+    UFUNCTION(Category = "WireKit")
+    void EnableTick();
+    
+    UFUNCTION(Category = "WireKit")
+    void DisableTick();
+    
+    UFUNCTION(Category = "WireKit")
+    void Show();
+    
+    UFUNCTION(Category = "WireKit")
+    void Hide();
+    
+    UFUNCTION(Category = "WireKit")
+    void EnableCollision();
+    
+    UFUNCTION(Category = "WireKit")
+    void DisableCollision();
     
 #if WITH_EDITOR
     TArray<UFunction*> GetAllInputs() const;
