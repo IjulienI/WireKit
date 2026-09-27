@@ -44,7 +44,6 @@ private:
 	
 	bool GetSelectedConnection(TSharedPtr<FWireConnection>& OutConnection) const;
 	
-	void OnGetAllowedClasses(TArray<const UClass*>& AllowedClasses);
 	bool IsFilteredActor(const AActor* const Actor) const;
 	void OnActorSelected(AActor* InActor);
 	

@@ -24,7 +24,10 @@ void SWireKitDetails::Construct(const FArguments& InArgs)
 		{
 			AllowedClasses.Add(AActor::StaticClass());
 		}), 
-		FOnShouldFilterActor::CreateSP(this, &SWireKitDetails::IsFilteredActor),
+		FOnShouldFilterActor::CreateLambda([this](const AActor* const Actor)
+		{
+			return IsFilteredActor(Actor);
+		}),
 		FOnActorSelected::CreateLambda([this](AActor* InActor)
 		{
 			OnActorSelected(InActor);
@@ -580,11 +583,6 @@ bool SWireKitDetails::GetSelectedConnection(TSharedPtr<FWireConnection>& OutConn
 	return true;
 }
 
-void SWireKitDetails::OnGetAllowedClasses(TArray<const UClass*>& AllowedClasses)
-{
-	AllowedClasses.Add(AActor::StaticClass());
-}
-
 bool SWireKitDetails::IsFilteredActor(const AActor* const Actor) const
 {
 	auto* WireComponent = Actor->FindComponentByClass<UWireComponent>();
@@ -596,7 +594,6 @@ void SWireKitDetails::OnActorSelected(AActor* InActor)
 	if (auto WireComponent = InActor->FindComponentByClass<UWireComponent>())
 	{
 		TargetSuggestionTextBox->SetText(FText::FromString(WireComponent->GetObjectName().ToString()));
-		// Idk if its good to do that, im drunk
 		OnTargetContentCommitted(TargetSuggestionTextBox->GetText());
 	}
 }
