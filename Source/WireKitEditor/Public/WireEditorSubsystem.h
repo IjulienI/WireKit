@@ -26,6 +26,7 @@ public:
 	// Getters
 	//---------------------------------------
 	TWeakObjectPtr<UWireComponent> GetCurrentSelection() const { return CurrentSelection; }
+	TArray<TWeakObjectPtr<UWireComponent>>& GetWires() { return Wires; }
 
 	//---------------------------------------
 	// Public delegate
@@ -37,17 +38,30 @@ private:
 	// Delegate functions
 	//---------------------------------------
 	void OnNewActorsPlaced(UObject* ObjToUse, const TArray<AActor*>& NewActors);
+	void OnLevelActorDeleted(AActor* Actor);
 	void OnActorSelectionChanged(const TArray<UObject*>& NewSelection, bool bForceRefresh);
+	void OnMapOpened(const FString& InMapName, bool bIsTemplate);
+	void OnPostUndoRedo();
 
 	//---------------------------------------
 	// Delegate handles
 	//---------------------------------------
 	FDelegateHandle OnNewActorsPlacedHandle;
+	FDelegateHandle OnLevelActorDeletedHandle;
+	FDelegateHandle OnPostUndoRedoHandle;
+	FDelegateHandle OnMapOpenedHandle;
 	FDelegateHandle OnActorSelectionChangedHandle;
 
+	//---------------------------------------
+	// Internal funcs
+	//---------------------------------------
+	void RefreshWires();
+	
 	//---------------------------------------
 	// Internal vars
 	//---------------------------------------
 	UPROPERTY()
 	TWeakObjectPtr<UWireComponent> CurrentSelection;
+	TArray<TWeakObjectPtr<UWireComponent>> Wires;
+	bool bWiresListDirty = false;
 };

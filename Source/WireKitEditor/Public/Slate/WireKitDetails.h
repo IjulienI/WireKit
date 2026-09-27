@@ -24,7 +24,6 @@ private:
 	int32 ActiveTab = 0;
 	
 	TWeakObjectPtr<UWireComponent> CurrentWireComponent;
-	FName LocalObjectName = NAME_None;
 	TSharedPtr<SEditableTextBox> NameEditableTextBox;
 	TArray<TSharedPtr<FWireConnection>> Clipboard;
 	

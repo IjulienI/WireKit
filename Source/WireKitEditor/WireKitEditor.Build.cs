@@ -25,6 +25,7 @@ public class WireKitEditor : ModuleRules
                 "UnrealEd",
                 "ToolMenus",
                 "InputCore",
+                "PropertyEditor",
             }
         );
     }

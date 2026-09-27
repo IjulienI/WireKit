@@ -71,13 +71,6 @@ void SWireKitDetails::Construct(const FArguments& InArgs)
 						const bool bValid = !New.ToString().Contains(TEXT(" "));
 						NameEditableTextBox->SetError(bValid ? FText::GetEmpty() : LOCTEXT("Space", "No space in Name"));
 					})
-					.OnTextCommitted_Lambda([this](const FText& Text, ETextCommit::Type CommitType)
-					{
-						if (CommitType == ETextCommit::OnEnter || CommitType == ETextCommit::OnUserMovedFocus)
-						{
-							LocalObjectName = *Text.ToString();
-						}
-					})
 				]
 			]
 
@@ -786,30 +779,15 @@ void SWireKitDetails::OutputShowingSuggestions(TArray<FString>& OutSuggestions)
 
 void SWireKitDetails::TargetShowingSuggestions(TArray<FString>& OutSuggestions)
 {
-	TArray<FString> Suggestions;
-	
-	OutSuggestions.Add("!Self");
-	OutSuggestions.Add("!Activator");
-	OutSuggestions.Add("!Caller");
-	
-	auto* World = GEditor->GetEditorWorldContext().World();
-	if (!World)
+	OutSuggestions = { "!Self", "!Activator", "!Caller" };
+
+	for (const TWeakObjectPtr<UWireComponent>& WireComponent : WireEditorSubsystem->GetWires())
 	{
-		return;
-	}
-	
-	// TODO : Use a cache of actor names thanks to the delagates (OnNewActorsPlaced, ...)
-	for (TActorIterator<AActor> It(World); It; ++It)
-	{
-		const AActor* Actor = *It;
-		if (Actor)
+		if (!WireComponent.IsValid() || WireComponent.Get() == CurrentWireComponent.Get())
 		{
-			const UWireComponent* WireComponent = Actor->GetComponentByClass<UWireComponent>();
-			if (WireComponent)
-			{
-				OutSuggestions.Add(WireComponent->GetObjectName().ToString());
-			}
+			continue;
 		}
+		OutSuggestions.Add(WireComponent->GetObjectName().ToString());
 	}
 }
 
@@ -824,10 +802,10 @@ void SWireKitDetails::ApplyChanges()
 	{
 		const FScopedTransaction Transaction(LOCTEXT("ApplyWire", "Edit Wire Connections"));
 		CurrentWireComponent->Modify();
-		CurrentWireComponent->GetOwner()->Modify();
-		
-		CurrentWireComponent->SetObjectName(LocalObjectName);
-		
+        
+		const FName NewName = *NameEditableTextBox->GetText().ToString();
+		CurrentWireComponent->SetObjectName(NewName);
+        
 		TArray<FWireConnection> NewConnections;
 		NewConnections.Reserve(Connections.Num());
 		for (const TSharedPtr<FWireConnection>& Connection : Connections)
