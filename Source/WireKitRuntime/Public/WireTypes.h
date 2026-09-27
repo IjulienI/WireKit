@@ -5,6 +5,8 @@
 #include "CoreMinimal.h"
 #include "WireTypes.generated.h"
 
+class UWireComponent;
+
 USTRUCT(BlueprintType)
 struct FWireConnection
 {
@@ -37,7 +39,7 @@ struct FWireContext
 {
     GENERATED_BODY()
     
-    UPROPERTY(BlueprintReadOnly) TWeakObjectPtr<AActor> Self;
-    UPROPERTY(BlueprintReadOnly) TWeakObjectPtr<AActor> Caller;
-    UPROPERTY(BlueprintReadOnly) TWeakObjectPtr<AActor> Activator;
+    UPROPERTY(BlueprintReadOnly) TWeakObjectPtr<UWireComponent> Self;
+    UPROPERTY(BlueprintReadOnly) TWeakObjectPtr<UWireComponent> Caller;
+    UPROPERTY(BlueprintReadOnly) TWeakObjectPtr<UWireComponent> Activator;
 };

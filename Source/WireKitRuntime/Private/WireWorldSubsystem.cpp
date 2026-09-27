@@ -52,7 +52,7 @@ void UWireWorldSubsystem::Tick(float DeltaTime)
     }
 }
 
-void UWireWorldSubsystem::QueueEvent(const FWireConnection& Connection, AActor* Caller, AActor* Activator)
+void UWireWorldSubsystem::QueueEvent(const FWireConnection& Connection, UWireComponent* Caller, UWireComponent* Activator)
 {
     FWirePendingEvent Event;
     Event.FireTime = GetWorld()->GetTimeSeconds() + FMath::Max(0.f, Connection.Delay);
@@ -74,7 +74,7 @@ void UWireWorldSubsystem::QueueEvent(const FWireConnection& Connection, AActor* 
     }
 }
 
-void UWireWorldSubsystem::CancelPending(AActor* Caller)
+void UWireWorldSubsystem::CancelPending(UWireComponent* Caller)
 {
     for (int32 i = PendingEvents.Num() - 1; i >= 0; --i)
     {
@@ -92,7 +92,7 @@ void UWireWorldSubsystem::ResolveAndDispatch(const FWirePendingEvent& Event)
     
     if (Target == WireKeywords::Self)
     {
-        if (AActor* Self = Event.Context.Self.Get())
+        if (auto* Self = Event.Context.Self.Get())
         {
             DispatchInput(Self, Event);
         }
@@ -106,7 +106,7 @@ void UWireWorldSubsystem::ResolveAndDispatch(const FWirePendingEvent& Event)
     }
     if (Target == WireKeywords::Caller)
     {
-        if (AActor* Caller = Event.Context.Caller.Get())
+        if (auto* Caller = Event.Context.Caller.Get())
         {
             DispatchInput(Caller, Event);
         }
@@ -120,7 +120,7 @@ void UWireWorldSubsystem::ResolveAndDispatch(const FWirePendingEvent& Event)
     }
     if (Target == WireKeywords::Activator)
     {
-        if (AActor* Activator = Event.Context.Activator.Get())
+        if (auto* Activator = Event.Context.Activator.Get())
         {
             DispatchInput(Activator, Event);
         }
@@ -139,18 +139,15 @@ void UWireWorldSubsystem::ResolveAndDispatch(const FWirePendingEvent& Event)
     bool bDispatched = false;
     for (const TWeakObjectPtr<UWireComponent>& Wire : Found)
     {
-        const UWireComponent* Component = Wire.Get();
+        UWireComponent* Component = Wire.Get();
         if (!Component)
         {
             Wires.RemoveSingle(Target, Wire);
             continue;
         }
 
-        if (AActor* Owner = Component->GetOwner())
-        {
-            DispatchInput(Owner, Event);
-            bDispatched = true;
-        }
+        DispatchInput(Component, Event);
+        bDispatched = true;
     }
 
     if (!bDispatched)
@@ -162,25 +159,30 @@ void UWireWorldSubsystem::ResolveAndDispatch(const FWirePendingEvent& Event)
     }
 }
 
-void UWireWorldSubsystem::DispatchInput(AActor* Target, const FWirePendingEvent& Event)
+void UWireWorldSubsystem::DispatchInput(UWireComponent* Target, const FWirePendingEvent& Event)
 {
     if (!Target) return;
     
-    UFunction* Function = Target->FindFunction(Event.TargetInput);
+    UObject* TargetObject = Target->GetOwner();
+    UFunction* Function = Target->GetOwner()->FindFunction(Event.TargetInput);
 
     if (!Function)
     {
-        UE_LOG(LogWireKitRuntime, Warning,
-            TEXT("DispatchInput - No function named '%s' in actor '%s' (caller: %s)"),
-            *Event.TargetInput.ToString(),*GetNameSafe(Target),
-            *GetNameSafe(Event.Context.Caller.Get()));
-        return;
+        Function = Target->FindFunction(Event.TargetInput);
+        if (!Function)
+        {
+            UE_LOG(LogWireKitRuntime, Warning,
+           TEXT("DispatchInput - No function named '%s' in actor '%s' (caller: %s)"),
+           *Event.TargetInput.ToString(),*GetNameSafe(Target->GetOwner()),
+           *GetNameSafe(Event.Context.Caller.Get()->GetOwner()));
+          return;
+        }
+        TargetObject = Target;
     }
-    
     
     if (Function->ParmsSize == 0)
     {
-        Target->ProcessEvent(Function, nullptr);
+        TargetObject->ProcessEvent(Function, nullptr);
     }
     
     // TODO : Add function param handle

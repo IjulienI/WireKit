@@ -51,7 +51,8 @@ void UWireComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 
 void UWireComponent::FireOutput(FName OutputName, AActor* Activator)
 {
-    if (!WireSubsystem.IsValid())
+    UWireComponent* ActivatorComponent  = Activator->FindComponentByClass<UWireComponent>();
+    if (!WireSubsystem.IsValid() || !ActivatorComponent)
     {
         return;
     }
@@ -62,7 +63,7 @@ void UWireComponent::FireOutput(FName OutputName, AActor* Activator)
         //if (Connection.TimesToFire >= 0 && Connection.FireCount >= Connection.TimesToFire) continue;
         
         ++Connection.FireCount;
-        WireSubsystem->QueueEvent(Connection, GetOwner(), Activator);
+        WireSubsystem->QueueEvent(Connection, this, ActivatorComponent);
     }
 }
 
@@ -70,8 +71,23 @@ void UWireComponent::FireOutput(FName OutputName, AActor* Activator)
 TArray<UFunction*> UWireComponent::GetAllInputs() const
 {
     TArray<UFunction*> OutFunctions;
-    
+
+    //---------------------------------------
+    // Owner functions
+    //---------------------------------------
     for (TFieldIterator<UFunction> FuncIt(GetOwner()->GetClass()); FuncIt; ++FuncIt)
+    {
+        UFunction* Function = *FuncIt;
+        if (Function->GetMetaData("Category") == "WireKit")
+        {
+            OutFunctions.Add(Function);
+        }
+    }
+
+    //---------------------------------------
+    // Self functions
+    //---------------------------------------
+    for (TFieldIterator<UFunction> FuncIt(GetClass()); FuncIt; ++FuncIt)
     {
         UFunction* Function = *FuncIt;
         if (Function->GetMetaData("Category") == "WireKit")
@@ -85,8 +101,23 @@ TArray<UFunction*> UWireComponent::GetAllInputs() const
 TArray<FMulticastDelegateProperty*> UWireComponent::GetAllOutputs() const
 {
     TArray<FMulticastDelegateProperty*> OutDelegates;
-    
+
+    //---------------------------------------
+    // Owner delegates
+    //---------------------------------------
     for (TFieldIterator<FMulticastDelegateProperty> PropIt(GetOwner()->GetClass()); PropIt; ++PropIt)
+    {
+        FMulticastDelegateProperty* Property = *PropIt;
+        if (Property->GetMetaData("Category") == "WireKit")
+        {
+            OutDelegates.Add(Property);
+        }
+    }
+
+    //---------------------------------------
+    // Self delegates
+    //---------------------------------------
+    for (TFieldIterator<FMulticastDelegateProperty> PropIt(GetClass()); PropIt; ++PropIt)
     {
         FMulticastDelegateProperty* Property = *PropIt;
         if (Property->GetMetaData("Category") == "WireKit")

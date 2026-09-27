@@ -43,15 +43,15 @@ public:
     //---------------------------------------
     // Public API
     //---------------------------------------
-    void QueueEvent(const FWireConnection& Connection, AActor* Caller, AActor* Activator);
-    void CancelPending(AActor* Caller);
+    void QueueEvent(const FWireConnection& Connection, UWireComponent* Caller, UWireComponent* Activator);
+    void CancelPending(UWireComponent* Caller);
     
 private:
     //---------------------------------------
     // Internal func
     //---------------------------------------
     void ResolveAndDispatch(const FWirePendingEvent& Event);
-    void DispatchInput(AActor* Target, const FWirePendingEvent& Event);
+    void DispatchInput(UWireComponent* Target, const FWirePendingEvent& Event);
     
     //---------------------------------------
     // Internal vars
