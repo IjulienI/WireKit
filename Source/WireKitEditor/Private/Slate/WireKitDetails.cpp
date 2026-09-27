@@ -304,7 +304,7 @@ void SWireKitDetails::Construct(const FArguments& InArgs)
 											.MinDesiredWidth(100.0f)
 											.OnShowingSuggestions_Lambda([this](const FString& Text, TArray<FString>& OutSuggestions)
 											{
-												OutputShowingSuggestions(OutSuggestions);
+												OutputShowingSuggestions(Text, OutSuggestions);
 											})
 											.OnTextCommitted_Lambda([this](const FText& Text, const ETextCommit::Type CommitType)
 											{
@@ -341,7 +341,7 @@ void SWireKitDetails::Construct(const FArguments& InArgs)
 											.MinDesiredWidth(100.0f)
 											.OnShowingSuggestions_Lambda([this](const FString& Text, TArray<FString>& OutSuggestions)
 											{
-												TargetShowingSuggestions(OutSuggestions);
+												TargetShowingSuggestions(Text, OutSuggestions);
 											})
 											.OnTextCommitted_Lambda([this](const FText& Text, const ETextCommit::Type CommitType)
 											{
@@ -385,7 +385,7 @@ void SWireKitDetails::Construct(const FArguments& InArgs)
 											.MinDesiredWidth(100.0f)
 											.OnShowingSuggestions_Lambda([this](const FString& Text, TArray<FString>& OutSuggestions)
 											{
-												InputShowingSuggestions(OutSuggestions);
+												InputShowingSuggestions(Text, OutSuggestions);
 											})
 											.OnTextCommitted_Lambda([this](const FText& Text, const ETextCommit::Type CommitType)
 											{
@@ -738,7 +738,7 @@ void SWireKitDetails::RefreshFromSelection(TWeakObjectPtr<UWireComponent> InWire
 	}
 }
 
-void SWireKitDetails::OutputShowingSuggestions(TArray<FString>& OutSuggestions)
+void SWireKitDetails::OutputShowingSuggestions(const FString& Text, TArray<FString>& OutSuggestions)
 {
 	TArray<FString> Suggestions;
 	if (!CurrentWireComponent.IsValid())
@@ -749,43 +749,66 @@ void SWireKitDetails::OutputShowingSuggestions(TArray<FString>& OutSuggestions)
 	
 	for (FMulticastDelegateProperty* WireDelegateFunction : CurrentWireComponent->GetAllOutputs())
 	{
-		Suggestions.Add(WireDelegateFunction->GetName());
-	}
-	OutSuggestions = Suggestions;
-}
-
-void SWireKitDetails::InputShowingSuggestions(TArray<FString>& OutSuggestions)
-{
-	TArray<FString> Suggestions;
-	
-	TArray<TWeakObjectPtr<UWireComponent>> TargetWireComponents;
-	WireEditorSubsystem->GetWires().MultiFind(GetCurrentConnection()->TargetEntity, TargetWireComponents);
-	
-	for (const TWeakObjectPtr<UWireComponent>& TargetWireComponent : TargetWireComponents)
-	{
-		for (UFunction* WireFunction : TargetWireComponent->GetAllInputs())
+		const FString DelegateName = WireDelegateFunction->GetName();
+		if (Text.IsEmpty() || DelegateName.StartsWith(Text))
 		{
-			Suggestions.Add(WireFunction->GetName());
+			Suggestions.AddUnique(WireDelegateFunction->GetName());
 		}
 	}
 	OutSuggestions = Suggestions;
 }
 
-void SWireKitDetails::TargetShowingSuggestions(TArray<FString>& OutSuggestions)
+void SWireKitDetails::InputShowingSuggestions(const FString& Text, TArray<FString>& OutSuggestions)
 {
-	OutSuggestions = { "!Self", "!Activator", "!Caller" };
+	OutSuggestions.Empty();
 
-	TArray<FName> Wires; 
-	WireEditorSubsystem->GetWires().GetKeys(Wires);
-	
-	for (FName& WireName : Wires)
+	TArray<TWeakObjectPtr<UWireComponent>> TargetWireComponents;
+	WireEditorSubsystem->GetWires().MultiFind(GetCurrentConnection()->TargetEntity, TargetWireComponents);
+
+	for (const TWeakObjectPtr<UWireComponent>& TargetWireComponent : TargetWireComponents)
 	{
-		if (!CurrentWireComponent.Get() || WireName == CurrentWireComponent.Get()->GetObjectName())
+		if (!TargetWireComponent.IsValid()) continue;
+
+		for (UFunction* WireFunction : TargetWireComponent->GetAllInputs())
+		{
+			const FString FunctionName = WireFunction->GetName();
+			if (Text.IsEmpty() || FunctionName.StartsWith(Text))
+			{
+				OutSuggestions.AddUnique(FunctionName);
+			}
+		}
+	}
+}
+
+void SWireKitDetails::TargetShowingSuggestions(const FString& Text, TArray<FString>& OutSuggestions)
+{
+	OutSuggestions.Empty();
+
+	static const TArray<FString> Keywords = { "!Self", "!Activator", "!Caller" };
+	for (const FString& Keyword : Keywords)
+	{
+		if (Text.IsEmpty() || Keyword.StartsWith(Text))
+		{
+			OutSuggestions.Add(Keyword);
+		}
+	}
+
+	TArray<FName> Wires;
+	WireEditorSubsystem->GetWires().GetKeys(Wires);
+
+	for (const FName& WireName : Wires)
+	{
+		if (!CurrentWireComponent.IsValid() || WireName == CurrentWireComponent->GetObjectName())
 		{
 			continue;
 		}
-		OutSuggestions.Add(WireName.ToString());
-	} 
+
+		const FString WireNameString = WireName.ToString();
+		if (Text.IsEmpty() || WireNameString.StartsWith(Text))
+		{
+			OutSuggestions.AddUnique(WireNameString);
+		}
+	}
 }
 
 void SWireKitDetails::CancelChanges()

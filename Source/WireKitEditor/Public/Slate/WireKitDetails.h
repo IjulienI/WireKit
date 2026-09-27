@@ -60,9 +60,9 @@ private:
 	void OnDoOnceContentCommitted(const ECheckBoxState& InValue);
 	void RefreshFromSelection(TWeakObjectPtr<UWireComponent> InWireComponent);
 	
-	void OutputShowingSuggestions(TArray<FString>& OutSuggestions);
-	void InputShowingSuggestions(TArray<FString>& OutSuggestions);
-	void TargetShowingSuggestions(TArray<FString>& OutSuggestions);
+	void OutputShowingSuggestions(const FString& Text, TArray<FString>& OutSuggestions);
+	void InputShowingSuggestions(const FString& Text, TArray<FString>& OutSuggestions);
+	void TargetShowingSuggestions(const FString& Text, TArray<FString>& OutSuggestions);
 	
 	void RefreshConnectionList(bool bResetSelection = false);
 	TSharedPtr<FWireConnection> GetCurrentConnection() const;
