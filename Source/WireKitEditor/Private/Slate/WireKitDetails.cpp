@@ -565,17 +565,6 @@ SWireKitDetails::~SWireKitDetails()
 	WireEditorSubsystem->OnWireSelectionChanged.Remove(OnWireSelectionChangedHandle);
 }
 
-bool SWireKitDetails::GetSelectedConnection(TSharedPtr<FWireConnection>& OutConnection) const
-{
-	const auto SelectedConnections = ConnectionList->GetSelectedItems();
-	if (SelectedConnections.Num() != 1 || !SelectedConnections[0].IsValid())
-	{
-		return false;
-	}
-	OutConnection =  SelectedConnections[0];
-	return true;
-}
-
 bool SWireKitDetails::IsFilteredActor(const AActor* const Actor) const
 {
 	auto* WireComponent = Actor->FindComponentByClass<UWireComponent>();

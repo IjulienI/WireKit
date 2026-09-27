@@ -41,8 +41,6 @@ private:
 	
 	UWireEditorSubsystem* WireEditorSubsystem = nullptr;
 	
-	bool GetSelectedConnection(TSharedPtr<FWireConnection>& OutConnection) const;
-	
 	bool IsFilteredActor(const AActor* const Actor) const;
 	void OnActorSelected(AActor* InActor);
 	
